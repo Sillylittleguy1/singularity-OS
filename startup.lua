@@ -2,7 +2,7 @@ term.clear()
 term.setCursorPos(1,1)  -- Ensure printing starts at the top left corner
 check = True
 local time = textutils.formatTime(os.time(utc))  
-print("   singularity OS[1.0b]", time)
+print("singularity OS[1.0b]", time)
 print("                                 @         ")
 print("                      @@::@    :           ")
 print("              :    @@::@@                  ")
