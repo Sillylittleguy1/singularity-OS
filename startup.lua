@@ -29,5 +29,5 @@ if fs.exists("os/main") == False then
 end
 sleep(2)
 if check == True then
-shell.run("main")
+shell.run("os/main")
 end
