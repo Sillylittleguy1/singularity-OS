@@ -22,7 +22,7 @@ print("                   @                       ")
 print("[                                                 ]")
 term.setCursorPos(2,18)
 textutils.slowPrint("=================================================")
-if fs.exists("/main") == False then
+if fs.exists("os/main") == False then
   term.setCursorPos(1,18)
   print("             Error, missing file main.lua                 ")
   check = False
