@@ -15,15 +15,14 @@ local LookupMove = {
     [keys.d] = {1, 0},
     [keys.enter] = "Enter"
 }
-
 local function compareVectors(v1, v2)
     return v1[1] == v2[1] and v1[2] == v2[2]
 end
 local function clampPosition(pos)
     if pos[1] < 0 then
         pos[1] = 0
-    elseif pos[1] > w then
-        pos[1] = w
+    elseif pos[1] > 0 then
+        pos[1] = 0
     end
     if pos[2] > 0 then
         pos[2] = 0
@@ -42,10 +41,9 @@ local function updateTime()
         term.setCursorPos(1, 1)
         term.clearLine()
         term.write("singularity OS [v1.0b] " .. time)
-        sleep(1)
+        sleep(1)  
       end
 end
-
 local function center()
     x = w / 2
     y = h / 2
@@ -62,6 +60,7 @@ local function drawFrontend()
     button.make("[Programs]", " Programs ", {0, -2}, pos, x - 4, y + 2)
     button.make("[Shutdown]", " Shutdown ", {0, -3}, pos, x - 4, y + 3)
 end
+
 parallel.waitForAny(
     function()
         drawFrontend()
@@ -77,6 +76,7 @@ parallel.waitForAny(
             end
         end
         term.clear()
+        -- Conditions
         if compareVectors(pos, {0, 0}) then
             shell.run("os/.programs")
         elseif compareVectors(pos, {0, -1}) then
@@ -88,5 +88,5 @@ parallel.waitForAny(
             os.shutdown()
         end
     end,
-    updateTime -- This function will run in parallel and continuously update the time
+    updateTime
 )
