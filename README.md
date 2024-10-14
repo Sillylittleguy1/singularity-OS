@@ -1,5 +1,6 @@
 # singularity-OS
 cc:tweaked and cc:vs Operating system
+
 terminal script to install:
 wget https://raw.githubusercontent.com/Sillylittleguy1/singularity-OS/refs/heads/main/install.lua
 
