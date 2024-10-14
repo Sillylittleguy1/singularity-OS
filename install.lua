@@ -8,9 +8,9 @@ if a == "Y" then
     local repo = "singularity-OS"
     local branch = "main"
     local files = {
-        "button.lua",
+        "os/api/button.lua",
         "startup.lua",
-        "main.lua",
+        "os/main.lua",
     }
     local baseURL = "https://raw.githubusercontent.com/" .. username .. "/" .. repo .. "/" .. branch .. "/"
     
