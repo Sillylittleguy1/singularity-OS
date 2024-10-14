@@ -1,6 +1,6 @@
 term.clear()
 local m = 1
-local button = require("button")
+local button = require("api/button")
 os.pullEvent = os.pullEventRaw
 local pos = {0, 0}
 w, h = term.getSize()
