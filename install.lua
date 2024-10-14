@@ -1,4 +1,5 @@
 term.clear()
+term.setCursorPos(1,2)
 print("Proceeding with the operation will overwrite any files with the same name, do you understand? Y/N")
 local a = read()
 
@@ -32,8 +33,11 @@ if a == "Y" then
     for _, file in ipairs(files) do
         downloadFile(file)
     end
-
     print("All files downloaded.")
-else
-    print("Operation canceled.")
+    sleep(1)
+    term.clear()
+  else
+  print("Operation canceled.")
+  sleep(1)
+  term.clear()
 end
