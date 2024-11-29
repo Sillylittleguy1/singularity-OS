@@ -6,10 +6,11 @@ local a = read()
 if a == "Y" then
     local username = "Sillylittleguy1"
     local repo = "singularity-OS"
-    local branch = "main"
+    local branch = "beta"
     local files = {
-        "os/api/button.lua",
         "startup.lua",
+        "os/api/button.lua",
+        "os/api/clear_exept.lua",
         "os/main.lua",
     }
     local baseURL = "https://raw.githubusercontent.com/" .. username .. "/" .. repo .. "/" .. branch .. "/"
