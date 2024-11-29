@@ -1,6 +1,7 @@
 term.clear()
 local m = 1
 local button = require("api/button")
+local screen = require("api/clear_exept")
 os.pullEvent = os.pullEventRaw
 local pos = {0, 0}
 w, h = term.getSize()
@@ -69,8 +70,7 @@ local function menus(n)
         button.make("[System]", " System ", {0, 0}, pos, x - 4, y)
         button.make("[Terminal]", " Terminal ", {0, -1}, pos, x - 4, y + 1)
         button.make("[Programs]", " Programs ", {0, -2}, pos, x - 4, y + 2)
-        button.make("[Shutdown]", " Shutdown    ", {0, -3}, pos, x - 4, y + 3)
-        print("                                                          ")
+        button.make("[Power]", " Power ", {0, -3}, pos, x - 4, y + 3)
       elseif n == 2 then
         center()
         term.setCursorPos(x - 4, y - 2)
@@ -79,12 +79,21 @@ local function menus(n)
         button.make("[Settings]", " Settings ", {0, -1}, pos, x - 4, y + 1)
         button.make("[Uninstall]", " Uninstall ", {0, -2}, pos, x - 4, y + 2)
         button.make("[Reboot api's]", " Reboot api's ", {0, -3}, pos, x - 4, y + 3)
-        button.make("[<Back]", " <Back  ", {0, -4}, pos, x - 3, y + 4)
+        button.make("[<Back]", " <Back", {0, -4}, pos, x - 3, y + 4)
+      elseif n == 3 then
+        center()
+        term.setCursorPos(x - 4, y - 2)
+        print("Power")
+        button.make("[Shutdown]", " Shutdown ", {0, 0}, pos, x - 4, y)
+        button.make("[reboot]", " reboot ", {0, -1}, pos, x - 4, y + 1)
+        button.make("[<Back]", " <Back", {0, -2}, pos, x - 3, y + 2)
     end
 end
 parallel.waitForAny(
     function()
         while true do
+            term.setCursorPos(1, 1)
+            screen.clearExcept()
             menus(m)
             local event, key = os.pullEvent("key")
             local move = LookupMove[key]
@@ -101,11 +110,11 @@ parallel.waitForAny(
                     elseif compareVectors(pos, {0, -2}) then
                         shell.run("programs/")
                     elseif compareVectors(pos, {0, -3}) then
-                        os.shutdown()
+                        m = 3
                     end
                 elseif m == 2 then
                     if compareVectors(pos, {0, 0}) then
-                        shell.run("install.lua")
+                        shell.run("os/install.lua")
                     elseif compareVectors(pos, {0, -1}) then
                         shell.run("os/Settings")
                     elseif compareVectors(pos, {0, -2}) then
@@ -113,6 +122,14 @@ parallel.waitForAny(
                     elseif compareVectors(pos, {0, -3}) then
                         shell.run("os/Reboot")
                     elseif compareVectors(pos, {0, -4}) then
+                        m = 1
+                    end
+                elseif m == 3 then
+                    if compareVectors(pos, {0, 0}) then
+                        os.shutdown()
+                    elseif compareVectors(pos, {0, -1}) then
+                        os.reboot()
+                    elseif compareVectors(pos, {0, -2}) then
                         m = 1
                     end
                 end
