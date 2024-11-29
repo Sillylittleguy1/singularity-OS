@@ -7,6 +7,9 @@ wget https://raw.githubusercontent.com/Sillylittleguy1/singularity-OS/refs/heads
 features:
 custom ascii button api that simplifies buttonmaking.
 
-SERVOS!!!!!!!!!
-
-more to come.
+To be added:
+-servos.
+-screen api
+-speaker api
+-app store
+-the entirety of shreck
