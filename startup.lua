@@ -1,33 +1,21 @@
 term.clear()
 term.setCursorPos(1,1)  -- Ensure printing starts at the top left corner
-check = True
+checks = 1
+check1 = 0
+local function check()
+  check1 = check1 + 1
+  print("[" .. check1 .. "/" .. checks .. "]")
+end
 local time = textutils.formatTime(os.time(utc))  
-print("singularity OS[v1.0b]", time)
-print("                                 @         ")
-print("                      @@::@    :           ")
-print("              :    @@::@@                  ")
-print("                 @@@::@          @@@       ")
-print("               @@:-@     @@@@::::@@@::@    ")
-print("              @@:     @@@@:@@          @   ")
-print("            @ @:     @@@::@   @         @  ")
-print("              @:    @@@  @@::  @    @      ")
-print("                @    @  ::@@  @@@    :@    ")
-print("            @         @   @::@@@     :@ @  ")
-print("             @          @@:@@@@     :@@    ")
-print("              @::@@@::::@@@@     @-:@@     ")
-print("                 @@@          @::@@@       ")
-print("                            @@::@@    :    ")
-print("                     :    @::@@            ")
-print("                   @                       ")
-print("[                                                 ]")
-term.setCursorPos(2,18)
-textutils.slowPrint("=================================================")
 if fs.exists("os/main") == False then
-  term.setCursorPos(1,18)
-  print("             Error, missing file main.lua                 ")
-  check = False
+    term.setCursorPos(1, 18)
+    printError("Missing OS files! \"how did we get here?\" lookin ahh")
+else
+  check()
 end
-sleep(2)
-if check == True then
+if fs.exists("install.lua") then
+    fs.copy("install.lua", "os/install.lua") 
+    fs.delete("install.lua")  
+end
+sleep(3)
 shell.run("os/main")
-end
