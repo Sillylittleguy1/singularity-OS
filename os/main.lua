@@ -50,7 +50,7 @@ local function updateTime()
         local time = textutils.formatTime(os.time(), true) -- 24-hour format
         term.setCursorPos(1, 1)
         term.clearLine()
-        term.write("singularity OS [v1.0b] " .. time)
+        term.write("singularity OS [v1.0b] " .. time .. "  [" ..user.. "]")
         term.setCursorPos(cx, cy)
         sleep(1)
     end
@@ -78,7 +78,7 @@ local function menus(n)
         button.make("[Update]", " Update ", {0, 0}, pos, x - 4, y)
         button.make("[Settings]", " Settings ", {0, -1}, pos, x - 4, y + 1)
         button.make("[Uninstall]", " Uninstall ", {0, -2}, pos, x - 4, y + 2)
-        button.make("[Reboot api's]", " Reboot api's ", {0, -3}, pos, x - 4, y + 3)
+        button.make("[Reboot apis]", " Reboot apis ", {0, -3}, pos, x - 4, y + 3)
         button.make("[<Back]", " <Back", {0, -4}, pos, x - 3, y + 4)
       elseif n == 3 then
         center()
@@ -89,6 +89,34 @@ local function menus(n)
         button.make("[<Back]", " <Back", {0, -2}, pos, x - 3, y + 2)
     end
 end
+
+if user == nil then
+    while user == nil do
+        center()
+        term.setCursorPos(x - 5,y -2)
+        print("select user")
+        button.make("[Root]", " Root ", {0, 0}, pos, x - 4, y)
+        button.make("[Power off]", " Power off ", {0, -1}, pos, x - 4, y + 1)
+        local event, key = os.pullEvent("key")
+            local move = LookupMove[key]
+            if move ~= nil and move ~= "Enter" then
+                pos = clampPosition(addv(pos, move))
+            elseif move == "Enter" then
+                if compareVectors(pos, {0, 0}) then
+                    user = "Root"
+                elseif compareVectors(pos, {0, -1}) then
+                    os.shutdown()
+                    break
+                end
+            end
+        end
+    end
+
+
+
+
+
+
 parallel.waitForAny(
     function()
         while true do
