@@ -1,64 +1,67 @@
 term.clear()
 term.setCursorPos(1,1)  -- Ensure printing starts at the top left corner
-local check1 = 0
-local check2 = 0
-local checks = 2
-local checks1 = 0
--- Function to increment and print the main check progress
-local function check(text)
-  check1 = check1 + 1
-  print("[" .. check1 .. "/" .. checks .. "] " .. text)
-end
 
--- Function to print the sub-check progress for each path
-local function subcheck(text, num)
-  check2 = check2 + 1
-  print("-[" .. check2 .. "/" .. num .. "] " .. text)
-end
-
--- Function to check the existence of paths
-local function check_paths(paths)
-  check2 = 0
-  local num_paths = #paths  -- Get the number of paths
-  checks1 = num_paths  -- Update `checks` to match the number of paths being checked
-  for _, path in ipairs(paths) do
-    if fs.exists(path) then
-      subcheck(path .. " exists.", num_paths)
-    else
-      print(path .. " does not exist.")
-    end
+-- Create the directory and file if needed
+if fs.exists("tmp/sys") then
+  if not fs.isDir("tmp/sys") then
+    print("Error: tmp/sys exists but is not a directory.")
+    return
   end
-  if check2 == num_paths then
-    return 0
+else
+  fs.makeDir("tmp/sys")
+end
+
+if not fs.exists("tmp/sys/log.log") then
+  local file = fs.open("tmp/sys/log.log", "w")
+  if file then
+    file.close()
+    print("Created tmp/sys/log.log")
   else
-    return 1
+    print("Error: Could not create log.log")
+    return
+  end
+else
+  print("start logging")
+end
+
+check = {}
+check.__index = check
+
+-- This function can be condensed if unneeded
+function check:create(list)
+  local chk = {}
+  setmetatable(chk, check)
+  chk.list = list
+  return chk
+end
+
+-- Pass the file object as a parameter to the check function
+function check:check(file)
+  local valid = nil
+  for i = 1, #self.list do
+    if fs.exists(self.list[i]) then
+      valid = "exists"
+    else
+      valid = "Missing"
+    end
+    print("["..#self.list.."/"..i.."]", self.list[i], valid)
+    file.write("["..#self.list.."/"..i.."] "..self.list[i].." "..valid.."\n")
   end
 end
 
+-- create and use check objects
+check1 = check:create({"os", "home", "tmp", "root", "usr"})
+check2 = check:create({"os/main.lua","os/install.lua","os/api/button.lua","os/api/clear_exept.lua","tmp/sys/log.log"})
 
--- Move the installer if it exists
-if fs.exists("install.lua") then
-  fs.copy("install.lua", "os/install.lua") 
-  fs.delete("install.lua") 
-  print("Installer moved to 'os/install.lua'")
+-- Open file for writing
+local file = fs.open("tmp/sys/log.log", "w")
+if file then
+  check1:check(file)
+  check2:check(file)
+  file.close()  -- Close the file when done
 else
-  print("Installer move ignored")
+  print("Error: Could not open file for writing.")
 end
 
-print("checking sys")
-if check_paths({"os", "home", "tmp", "root", "usr"}) == 0 then
-  check("Root folders found")
-else
-  print("Root folders missing")
-end
-
-if check_paths({"os/main.lua","os/install.lua","os/api/button.lua","os/api/clear_exept.lua","tmp/sys/log.txt"}) == 0 then
-  check("System files found")
-else
-  print("System files missing")
-end
-
-
--- Sleep for 5 seconds and then run main script
-sleep(5)
+sleep(10)
 shell.run("os/main")
