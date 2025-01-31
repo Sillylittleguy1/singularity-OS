@@ -1,5 +1,6 @@
+local printsave = require("os/api/printsave")
 term.clear()
-term.setCursorPos(1,1)  -- Ensure printing starts at the top left corner
+term.setCursorPos(1, 1)  -- Ensure printing starts at the top left corner
 
 -- Create the directory and file if needed
 if fs.exists("tmp/sys") then
@@ -44,18 +45,18 @@ function check:check(file)
     else
       valid = "Missing"
     end
-    print("["..#self.list.."/"..i.."]", self.list[i], valid)
-    file.write("["..#self.list.."/"..i.."] "..self.list[i].." "..valid.."\n")
+    file.printsave("[" .. #self.list .. "/" .. i .. "] " .. self.list[i] .. " " .. valid)
   end
 end
 
--- create and use check objects
+-- Create and use check objects
 check1 = check:create({"os", "home", "tmp", "root", "usr"})
-check2 = check:create({"os/main.lua","os/install.lua","os/api/button.lua","os/api/clear_exept.lua","tmp/sys/log.log"})
+check2 = check:create({"os/main.lua", "os/install.lua", "os/api/button.lua", "os/api/clear_exept.lua", "tmp/sys/log.log"})
 
 -- Open file for writing
 local file = fs.open("tmp/sys/log.log", "w")
 if file then
+  printsave.addPrintSave(file)  -- Add the printsave method to the file handle
   check1:check(file)
   check2:check(file)
   file.close()  -- Close the file when done
