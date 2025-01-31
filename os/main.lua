@@ -1,10 +1,9 @@
 term.clear()
-local m = 1
 local button = require("api/button")
 local screen = require("api/clear_exept")
 os.pullEvent = os.pullEventRaw
 local pos = {0, 0}
-w, h = term.getSize()
+local w, h = term.getSize()
 
 -- Time update flag
 local keepUpdatingTime = true
@@ -22,21 +21,50 @@ local LookupMove = {
     [keys.enter] = "Enter"
 }
 
+-- Define the menu system
+local menu = {
+    currentMenu = "start",  -- Start with the "start" menu
+    menus = {
+        start = {
+            title = "Start Menu",
+            options = {
+                { label = "[System]", text = " System ", action = function() menu.currentMenu = "system" end },
+                { label = "[Terminal]", text = " Terminal ", action = function() shell.run("programs/") end },
+                { label = "[Programs]", text = " Programs ", action = function() shell.run("programs/") end },
+                { label = "[Power]", text = " Power ", action = function() menu.currentMenu = "power" end }
+            }
+        },
+        system = {
+            title = "System Menu",
+            options = {
+                { label = "[Update]", text = " Update ", action = function() shell.run("os/install.lua") end },
+                { label = "[Settings]", text = " Settings ", action = function() shell.run("os/Settings") end },
+                { label = "[Uninstall]", text = " Uninstall ", action = function() shell.run("os/Uninstall") end },
+                { label = "[Reboot api's]", text = " Reboot api's ", action = function() shell.run("os/Reboot") end },
+                { label = "[<Back]", text = " <Back", action = function() menu.currentMenu = "start" end }
+            }
+        },
+        power = {
+            title = "Power",
+            options = {
+                { label = "[Shutdown]", text = " Shutdown ", action = function() os.shutdown() end },
+                { label = "[reboot]", text = " reboot ", action = function() os.reboot() end },
+                { label = "[<Back]", text = " <Back", action = function() menu.currentMenu = "start" end }
+            }
+        }
+    }
+}
+
+-- Utility functions
 local function compareVectors(v1, v2)
     return v1[1] == v2[1] and v1[2] == v2[2]
 end
 
-local function clampPosition(pos)
-    if pos[1] < 0 then
-        pos[1] = 0
-    elseif pos[1] > 0 then
-        pos[1] = 0
-    end
-    if pos[2] > 0 then
-        pos[2] = 0
-    elseif pos[2] < -3 - (m - 1) then
-        pos[2] = -3 - (m - 1)
-    end
+local function clampPosition(pos, maxOptions)
+    if pos[1] < 0 then pos[1] = 0 end
+    if pos[1] > 0 then pos[1] = 0 end
+    if pos[2] > 0 then pos[2] = 0 end
+    if pos[2] < 0 - (maxOptions - 1) then pos[2] = 0 - (maxOptions - 1) end
     return pos
 end
 
@@ -44,122 +72,52 @@ local function addv(v1, v2)
     return {v1[1] + v2[1], v1[2] + v2[2]}
 end
 
+local function center()
+    return math.floor(w / 2), math.floor(h / 2)
+end
+
+-- Time update function
 local function updateTime()
     while true do
         local cx, cy = term.getCursorPos()
         local time = textutils.formatTime(os.time(), true) -- 24-hour format
         term.setCursorPos(1, 1)
         term.clearLine()
-        term.write("singularity OS [v1.0b] " .. time .. "  [" ..user.. "]")
+        term.write("singularity OS [v1.0b] " .. time)
         term.setCursorPos(cx, cy)
         sleep(1)
     end
 end
 
-
-local function center()
-    x = w / 2
-    y = h / 2
-end
-
-local function menus(n)
-    if n == 1 then
-        center()
-        term.setCursorPos(x - 4, y - 2)
-        print("Start Menu ")
-        button.make("[System]", " System ", {0, 0}, pos, x - 4, y)
-        button.make("[Terminal]", " Terminal ", {0, -1}, pos, x - 4, y + 1)
-        button.make("[Programs]", " Programs ", {0, -2}, pos, x - 4, y + 2)
-        button.make("[Power]", " Power ", {0, -3}, pos, x - 4, y + 3)
-      elseif n == 2 then
-        center()
-        term.setCursorPos(x - 4, y - 2)
-        print("System Menu")
-        button.make("[Update]", " Update ", {0, 0}, pos, x - 4, y)
-        button.make("[Settings]", " Settings ", {0, -1}, pos, x - 4, y + 1)
-        button.make("[Uninstall]", " Uninstall ", {0, -2}, pos, x - 4, y + 2)
-        button.make("[Reboot apis]", " Reboot apis ", {0, -3}, pos, x - 4, y + 3)
-        button.make("[<Back]", " <Back", {0, -4}, pos, x - 3, y + 4)
-      elseif n == 3 then
-        center()
-        term.setCursorPos(x - 4, y - 2)
-        print("Power")
-        button.make("[Shutdown]", " Shutdown ", {0, 0}, pos, x - 4, y)
-        button.make("[reboot]", " reboot ", {0, -1}, pos, x - 4, y + 1)
-        button.make("[<Back]", " <Back", {0, -2}, pos, x - 3, y + 2)
+-- Menu rendering function
+local function renderMenu(menuId)
+    local menuData = menu.menus[menuId]
+    if not menuData then
+        error("Menu not found: " .. menuId)
+    end
+    local x, y = center()
+    term.setCursorPos(x - 4, y - 2)
+    print(menuData.title)
+    for i, option in ipairs(menuData.options) do
+        button.make(option.label, option.text, {0, -(i - 1)}, pos, x - 4, y + i - 1)
     end
 end
 
-if user == nil then
-    while user == nil do
-        center()
-        term.setCursorPos(x - 5,y -2)
-        print("select user")
-        button.make("[Root]", " Root ", {0, 0}, pos, x - 4, y)
-        button.make("[Power off]", " Power off ", {0, -1}, pos, x - 4, y + 1)
-        local event, key = os.pullEvent("key")
-            local move = LookupMove[key]
-            if move ~= nil and move ~= "Enter" then
-                pos = clampPosition(addv(pos, move))
-            elseif move == "Enter" then
-                if compareVectors(pos, {0, 0}) then
-                    user = "Root"
-                elseif compareVectors(pos, {0, -1}) then
-                    os.shutdown()
-                    break
-                end
-            end
-        end
-    end
-
-
-
-
-
-
+-- Main event loop
 parallel.waitForAny(
     function()
         while true do
             term.setCursorPos(1, 1)
             screen.clearExcept()
-            menus(m)
+            renderMenu(menu.currentMenu)
             local event, key = os.pullEvent("key")
             local move = LookupMove[key]
             if move ~= nil and move ~= "Enter" then
-                pos = clampPosition(addv(pos, move))
+                pos = clampPosition(addv(pos, move), #menu.menus[menu.currentMenu].options)
             elseif move == "Enter" then
-                if m == 1 then
-                    if compareVectors(pos, {0, 0}) then
-                        m = 2
-                    elseif compareVectors(pos, {0, -1}) then
-                        term.clear()
-                        term.setCursorPos(1, 1)
-                        break
-                    elseif compareVectors(pos, {0, -2}) then
-                        shell.run("programs/")
-                    elseif compareVectors(pos, {0, -3}) then
-                        m = 3
-                    end
-                elseif m == 2 then
-                    if compareVectors(pos, {0, 0}) then
-                        shell.run("os/install.lua")
-                    elseif compareVectors(pos, {0, -1}) then
-                        shell.run("os/Settings")
-                    elseif compareVectors(pos, {0, -2}) then
-                        shell.run("os/Uninstall")
-                    elseif compareVectors(pos, {0, -3}) then
-                        shell.run("os/Reboot")
-                    elseif compareVectors(pos, {0, -4}) then
-                        m = 1
-                    end
-                elseif m == 3 then
-                    if compareVectors(pos, {0, 0}) then
-                        os.shutdown()
-                    elseif compareVectors(pos, {0, -1}) then
-                        os.reboot()
-                    elseif compareVectors(pos, {0, -2}) then
-                        m = 1
-                    end
+                local selectedOption = menu.menus[menu.currentMenu].options[math.abs(pos[2]) + 1]
+                if selectedOption and selectedOption.action then
+                    selectedOption.action()
                 end
                 pos = {0, 0}
             end
