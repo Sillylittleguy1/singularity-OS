@@ -11,7 +11,9 @@ if fs.exists("tmp/sys") then
 else
   fs.makeDir("tmp/sys")
 end
-
+if fs.exists("install.lua") then
+    shell.run("mv install.lua os/install.lua")
+end
 if not fs.exists("tmp/sys/log.log") then
   local file = fs.open("tmp/sys/log.log", "w")
   if file then
@@ -64,5 +66,5 @@ else
   print("Error: Could not open file for writing.")
 end
 
-sleep(10)
+sleep(4)
 shell.run("os/main")
