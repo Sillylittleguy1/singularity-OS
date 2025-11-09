@@ -9,9 +9,7 @@ if a == "Y" then
     local branch = "beta"
     local files = {
         "startup.lua",
-        "os/api/button.lua",
-        "os/api/clear_exept.lua",
-        "os/main.lua",
+        "os"
     }
     local baseURL = "https://raw.githubusercontent.com/" .. username .. "/" .. repo .. "/" .. branch .. "/"
     
